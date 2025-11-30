@@ -74,8 +74,8 @@ class InputValidator:
         
         if len(name) < 2:
             return False, "Entry name must be at least 2 characters long"
-        if len(name) > 100:
-            return False, "Entry name cannot exceed 100 characters"
+        if len(name) > 25:
+            return False, "Entry name should be less than 25 characters. Please try a shorter name"
         
         invalid_chars = [';', '"', "'", '\\', '/', '<', '>']
         if any(char in name for char in invalid_chars):
@@ -98,14 +98,52 @@ class InputValidator:
         
         email = email.strip()
         
-        if len(email) > 254:
-            return False, "Email address is too long"
+        if len(email) > 25:
+            return False, "Email should be less than 25 characters. Please try a shorter email"
         
         email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_pattern, email):
             return False, "Please enter a valid email address format"
         
         return True, email
+    
+    @staticmethod
+    def validate_email_or_username(input_str: str) -> Tuple[bool, str]:
+        """Validate email or username input for password entries.
+        
+        Args:
+            input_str: Email or username string to validate
+            
+        Returns:
+            Tuple of (is_valid, message_or_input)
+        """
+        if not input_str or not input_str.strip():
+            return False, "Email or username cannot be empty"
+        
+        input_str = input_str.strip()
+        
+        if len(input_str) > 25:
+            return False, "Email or username should be less than 25 characters. Please try a shorter one"
+        
+        return True, input_str
+    
+    @staticmethod
+    def validate_password_length(password: str) -> Tuple[bool, str]:
+        """Validate password length for password entries.
+        
+        Args:
+            password: Password string to validate
+            
+        Returns:
+            Tuple of (is_valid, message_or_password)
+        """
+        if not password:
+            return False, "Password cannot be empty"
+        
+        if len(password) > 100:
+            return False, "Password should be less than 100 characters. Please try a shorter password"
+        
+        return True, password
     
     @staticmethod
     def validate_encryption_key(key: str) -> Tuple[bool, str]:

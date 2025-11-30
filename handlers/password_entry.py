@@ -12,6 +12,7 @@ from db.database import db
 from utils.encryption import encrypt_data, decrypt_data
 from utils.logger import logger
 from utils.session_manager import sessions
+from utils.validators import InputValidator
 
 password_router = Router()
 
@@ -86,8 +87,9 @@ async def process_entry_name(message: Message, state: FSMContext):
             await cancel_password_operation(message, state)
             return
         
-        if not entry_name:
-            await message.answer("❌ Please enter a valid entry name:")
+        is_valid, error_msg = InputValidator.validate_entry_name(entry_name)
+        if not is_valid:
+            await message.answer(f"🔸 {error_msg}\n\nPlease enter a valid entry name:")
             return
         
         await state.update_data(entry_name=entry_name)
@@ -118,6 +120,11 @@ async def process_new_email(message: Message, state: FSMContext):
             await cancel_password_operation(message, state)
             return
         
+        is_valid, error_msg = InputValidator.validate_email_or_username(email_input)
+        if not is_valid:
+            await message.answer(f"🔸 {error_msg}\n\nPlease enter a valid email or username:")
+            return
+        
         await state.update_data(email=email_input)
         
         await message.answer(
@@ -146,8 +153,9 @@ async def process_password(message: Message, state: FSMContext):
             await cancel_password_operation(message, state)
             return
         
-        if not password_input:
-            await message.answer("❌ Please enter a valid password:")
+        is_valid, error_msg = InputValidator.validate_password_length(password_input)
+        if not is_valid:
+            await message.answer(f"🔸 {error_msg}\n\nPlease enter a valid password:")
             return
         
         session_data = sessions.get_user_data(user_id)
@@ -501,12 +509,9 @@ async def process_new_email_edit(message: Message, state: FSMContext):
             await cancel_password_operation(message, state)
             return
         
-        if not entry_id:
-            await message.answer("❌ Entry not found. Please try again.")
-            return
-            
-        if not new_email:
-            await message.answer("❌ Please enter a valid email or username:")
+        is_valid, error_msg = InputValidator.validate_email_or_username(new_email)
+        if not is_valid:
+            await message.answer(f"🔸 {error_msg}\n\nPlease enter a valid email or username:")
             return
         
         session_data = sessions.get_user_data(user_id)
@@ -591,12 +596,9 @@ async def process_new_password_edit(message: Message, state: FSMContext):
             await cancel_password_operation(message, state)
             return
         
-        if not entry_id:
-            await message.answer("❌ Entry not found. Please try again.")
-            return
-            
-        if not new_password:
-            await message.answer("❌ Please enter a valid password:")
+        is_valid, error_msg = InputValidator.validate_password_length(new_password)
+        if not is_valid:
+            await message.answer(f"🔸 {error_msg}\n\nPlease enter a valid password:")
             return
         
         session_data = sessions.get_user_data(user_id)
@@ -676,12 +678,9 @@ async def process_new_name_edit(message: Message, state: FSMContext):
             await cancel_password_operation(message, state)
             return
         
-        if not entry_id:
-            await message.answer("❌ Entry not found. Please try again.")
-            return
-            
-        if not new_name:
-            await message.answer("❌ Please enter a valid entry name:")
+        is_valid, error_msg = InputValidator.validate_entry_name(new_name)
+        if not is_valid:
+            await message.answer(f"🔸 {error_msg}\n\nPlease enter a valid entry name:")
             return
         
         session_data = sessions.get_user_data(user_id)
